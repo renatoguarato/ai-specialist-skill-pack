@@ -1,5 +1,7 @@
 # AI Specialist Skill Pack
 
+Versão atual: **4.0.0**
+
 Pacote de skills para acelerar onboarding, entendimento, investigação e evolução de aplicações desconhecidas.
 
 ## Objetivo
@@ -97,6 +99,18 @@ skills/<skill-name>/SKILL.md
 ```
 
 O formato foi mantido simples e portátil para ser adaptado a agentes de código e ferramentas que suportam skills/instructions por diretório.
+
+## Contrato v4
+
+Todas as skills permanecem utilizáveis isoladamente e agora seguem um contrato operacional comum: escopo explícito, evidências rastreáveis, estado de conhecimento, riscos priorizados, desconhecidos decisivos, próximas ações, critérios de parada e handoff. As referências em `references/` aprofundam taxonomias reutilizáveis sem serem necessárias para o carregamento básico da skill.
+
+Para validar o pacote sem instalar dependências externas:
+
+```bash
+python3 scripts/validate_skill_pack.py
+```
+
+Os cenários em `evals/representative-scenarios.md` cobrem onboarding, fluxos, mudanças, incidentes, RAG, agentes, seleção de modelos, POCs, PRs e reuniões.
 
 ## Princípios do pacote
 

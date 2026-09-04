@@ -1,6 +1,6 @@
 {
   "name": "ai-specialist-skill-pack",
-  "version": "3.0.0",
+  "version": "4.0.0",
   "description": "Operating system of reusable skills for application onboarding, AI systems and daily AI Specialist work.",
   "skills": [
     "00-application-onboarding-orchestrator",
