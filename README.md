@@ -2,6 +2,49 @@
 
 Versão atual: **4.0.0**
 
+## Instalação rápida
+
+O pack pode ser instalado em qualquer repositório local com Python 3:
+
+```bash
+python3 /caminho/ai-specialist-skill-pack/install.py /caminho/do/projeto
+```
+
+Isso instala as skills em `.agents/skills`, adiciona as instruções do pack ao
+`AGENTS.md` sem substituir o conteúdo existente e registra a versão em
+`.ai-specialist-pack/pack.lock.json`.
+
+Para simular a instalação antes de alterar arquivos:
+
+```bash
+python3 /caminho/ai-specialist-skill-pack/install.py /caminho/do/projeto --dry-run
+```
+
+Para criar também um template de configuração do projeto:
+
+```bash
+python3 /caminho/ai-specialist-skill-pack/install.py /caminho/do/projeto --with-config
+```
+
+Atualização e validação são explícitas:
+
+```bash
+python3 /caminho/ai-specialist-skill-pack/install.py update /caminho/do/projeto
+python3 /caminho/ai-specialist-skill-pack/install.py validate /caminho/do/projeto
+```
+
+Se uma skill foi editada localmente, o instalador para e lista o conflito. Use
+`--force` somente depois de revisar a diferença. Para remover a instalação,
+use `uninstall --yes`; arquivos modificados localmente são preservados.
+
+Após abrir uma nova sessão do agente dentro do projeto, comece com:
+
+```text
+Use ai-specialist-daily-orchestrator. Faça o onboarding desta aplicação usando
+application-onboarding-orchestrator. Comece pelo inventário, cite as evidências
+e separe fatos, inferências, hipóteses e desconhecidos. Não altere arquivos ainda.
+```
+
 Pacote de skills para acelerar onboarding, entendimento, investigação e evolução de aplicações desconhecidas.
 
 ## Objetivo
