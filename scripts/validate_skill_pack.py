@@ -7,7 +7,7 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 SKILLS = ROOT / "skills"
-REQUIRED = ("## Contrato operacional v4", "## Saída v4")
+V4_REQUIRED = ("## Contrato operacional v4", "## Saída v4")
 
 def frontmatter(path):
     text = path.read_text(encoding="utf-8")
@@ -31,6 +31,15 @@ def main():
     dir_names = {p.name for p in dirs}
     if manifest_names != dir_names:
         errors.append("manifest.json não corresponde aos diretórios de skills")
+    if manifest.get("skill_count") != len(dirs):
+        errors.append("manifest.json possui skill_count incorreto")
+    profiles = manifest.get("profiles", {})
+    for profile, profile_names in profiles.items():
+        unknown = set(profile_names) - manifest_names
+        if unknown:
+            errors.append(f"perfil {profile} referencia skills inexistentes: {sorted(unknown)}")
+    if not profiles:
+        errors.append("manifest.json não possui profiles")
     names = set()
     for folder in dirs:
         path = folder / "SKILL.md"
@@ -50,9 +59,16 @@ def main():
         names.add(name)
         if not fields.get("description"):
             errors.append(f"{path}: description ausente")
-        for section in REQUIRED:
-            if section not in text:
-                errors.append(f"{path}: seção obrigatória ausente: {section}")
+        if manifest.get("version", "").startswith("5."):
+            if "references/operating-contract.md" not in text:
+                errors.append(f"{path}: referência ao operating contract ausente")
+            for reference in re.findall(r"`(references/[^`]+)`", text):
+                if not (ROOT / reference).exists():
+                    errors.append(f"{path}: referência inexistente: {reference}")
+        else:
+            for section in V4_REQUIRED:
+                if section not in text:
+                    errors.append(f"{path}: seção obrigatória ausente: {section}")
         if "TODO" in text or "TBD" in text or "PLACEHOLDER" in text:
             errors.append(f"{path}: placeholder não resolvido")
     if errors:

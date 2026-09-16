@@ -36,18 +36,20 @@ def load_manifest() -> dict:
         return json.load(stream)
 
 
-def source_files() -> list[tuple[Path, str]]:
+def source_files(profile: str) -> list[tuple[Path, str]]:
     manifest = load_manifest()
     files: list[tuple[Path, str]] = []
-    for skill_name in manifest["skills"]:
+    for skill_name in manifest["profiles"][profile]:
         source = PACK_ROOT / "skills" / skill_name / "SKILL.md"
         if not source.is_file():
             raise RuntimeError(f"Skill ausente: {source}")
         files.append((source, f".agents/skills/{skill_name}/SKILL.md"))
 
-    for source in sorted((PACK_ROOT / "references").glob("*")):
+    references_root = PACK_ROOT / "references"
+    for source in sorted(references_root.rglob("*")):
         if source.is_file():
-            files.append((source, f".agents/references/{source.name}"))
+            relative = source.relative_to(references_root).as_posix()
+            files.append((source, f".agents/references/{relative}"))
     return files
 
 
@@ -80,7 +82,7 @@ def update_agents(repo: Path, dry_run: bool) -> tuple[str, bool]:
 
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
-    commands = {"install", "update", "validate", "uninstall"}
+    commands = {"install", "update", "migrate", "validate", "uninstall"}
     command = "install"
     remaining = argv[:]
     if remaining and remaining[0] in commands:
@@ -91,6 +93,11 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     )
     parser.add_argument("repo", nargs="?", help="raiz do repositório alvo")
     parser.add_argument("--source", type=Path, default=PACK_ROOT, help="origem do pack")
+    parser.add_argument(
+        "--profile",
+        choices=("standard", "ai", "delivery", "full"),
+        help="perfil de skills a instalar (padrão: standard)",
+    )
     parser.add_argument("--dry-run", action="store_true", help="mostra mudanças sem escrever")
     parser.add_argument("--force", action="store_true", help="sobrescreve conflitos de arquivos")
     parser.add_argument("--with-config", action="store_true", help="cria config.example.json")
@@ -115,7 +122,37 @@ def copy_pack(args: argparse.Namespace) -> int:
         return 1
 
     manifest = load_manifest()
-    files = source_files()
+    lock_path = repo / LOCK_FILE
+    existing_lock = None
+    if lock_path.is_file():
+        existing_lock = json.loads(lock_path.read_text(encoding="utf-8"))
+
+    if args.command == "migrate" and existing_lock:
+        if existing_lock.get("version") == manifest["version"]:
+            print("ERRO: a instalação já usa a versão atual; use update.", file=sys.stderr)
+            return 1
+        stale = remove_locked_files(repo, existing_lock, args.dry_run)
+        if stale:
+            print("Arquivos legados removidos:" if not args.dry_run else "Arquivos legados que seriam removidos:")
+            print("\n".join(f"  - {item}" for item in stale))
+
+    if args.command == "update" and existing_lock:
+        old_version = existing_lock.get("version")
+        if old_version and old_version != manifest["version"]:
+            print(
+                f"ERRO: instalação {old_version} detectada; use migrate antes de update.",
+                file=sys.stderr,
+            )
+            return 1
+
+    profile = args.profile
+    if profile is None:
+        profile = existing_lock.get("profile", "standard") if args.command == "update" and existing_lock else "standard"
+    if profile not in manifest["profiles"]:
+        print(f"ERRO: perfil inválido: {profile}", file=sys.stderr)
+        return 1
+    files = source_files(profile)
+    selected_paths = {relative for _, relative in files}
     conflicts: list[str] = []
     changes: list[str] = []
     for source, relative in files:
@@ -129,6 +166,17 @@ def copy_pack(args: argparse.Namespace) -> int:
         print("ERRO: arquivos conflitantes (use --force para substituir):")
         print("\n".join(f"  - {item}" for item in conflicts))
         return 1
+
+    stale_removed, stale_preserved = remove_stale_files(
+        repo, existing_lock, selected_paths, args.dry_run
+    )
+    if stale_removed:
+        changes.extend(
+            ("atualizar " if args.dry_run else "remover ") + item
+            for item in stale_removed
+        )
+    if stale_preserved:
+        changes.extend("preservar " + item for item in stale_preserved)
 
     for source, relative in files:
         destination = repo / relative
@@ -163,6 +211,7 @@ def copy_pack(args: argparse.Namespace) -> int:
         lock = {
             "pack": "ai-specialist-skill-pack",
             "version": manifest["version"],
+            "profile": profile,
             "source": str(args.source),
             "managed_files": managed,
             "agents_markers": [START_MARKER, END_MARKER]
@@ -171,13 +220,53 @@ def copy_pack(args: argparse.Namespace) -> int:
         lock_path.parent.mkdir(parents=True, exist_ok=True)
         lock_path.write_text(json.dumps(lock, indent=2) + "\n", encoding="utf-8")
 
-    print(f"Pack {manifest['version']} {'seria instalado' if args.dry_run else 'instalado'} em {repo}")
+    print(
+        f"Pack {manifest['version']} ({profile}) "
+        f"{'seria instalado' if args.dry_run else 'instalado'} em {repo}"
+    )
     if changes:
         print("Mudanças:")
         print("\n".join(f"  - {item}" for item in changes))
     else:
         print("Nenhuma mudança necessária.")
     return 0
+
+
+def remove_locked_files(repo: Path, lock: dict, dry_run: bool) -> list[str]:
+    removed: list[str] = []
+    for relative, expected_hash in lock.get("managed_files", {}).items():
+        path = repo / relative
+        if not path.is_file() or sha256(path) != expected_hash:
+            continue
+        if not dry_run:
+            path.unlink()
+        removed.append(relative)
+    return removed
+
+
+def remove_stale_files(
+    repo: Path,
+    lock: dict | None,
+    selected_paths: set[str],
+    dry_run: bool,
+) -> tuple[list[str], list[str]]:
+    if not lock or lock.get("version") != load_manifest()["version"]:
+        return [], []
+    removed: list[str] = []
+    preserved: list[str] = []
+    for relative, expected_hash in lock.get("managed_files", {}).items():
+        if relative in selected_paths:
+            continue
+        path = repo / relative
+        if not path.is_file():
+            continue
+        if sha256(path) != expected_hash:
+            preserved.append(relative)
+            continue
+        if not dry_run:
+            path.unlink()
+        removed.append(relative)
+    return removed, preserved
 
 
 def validate_installation(args: argparse.Namespace) -> int:
@@ -187,12 +276,17 @@ def validate_installation(args: argparse.Namespace) -> int:
         print(f"ERRO: lock não encontrado: {lock_path}", file=sys.stderr)
         return 1
     lock = json.loads(lock_path.read_text(encoding="utf-8"))
+    manifest = load_manifest()
+    profile = lock.get("profile", "standard")
+    if profile not in manifest["profiles"]:
+        print(f"ERRO: perfil desconhecido no lock: {profile}", file=sys.stderr)
+        return 1
     missing = [path for path in lock["managed_files"] if not (repo / path).is_file()]
     if missing:
         print("ERRO: arquivos ausentes:")
         print("\n".join(f"  - {item}" for item in missing))
         return 1
-    print(f"OK: pack {lock['version']} instalado e completo em {repo}")
+    print(f"OK: pack {lock['version']} ({profile}) instalado e completo em {repo}")
     return 0
 
 
@@ -246,7 +340,7 @@ def uninstall(args: argparse.Namespace) -> int:
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(sys.argv[1:] if argv is None else argv)
-    if args.command in {"install", "update"}:
+    if args.command in {"install", "update", "migrate"}:
         return copy_pack(args)
     if args.command == "validate":
         return validate_installation(args)

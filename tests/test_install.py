@@ -1,3 +1,5 @@
+import hashlib
+import json
 import subprocess
 import sys
 import tempfile
@@ -31,14 +33,36 @@ class InstallerTests(unittest.TestCase):
             self.assertEqual(second.returncode, 0, second.stderr + second.stdout)
             self.assertIn("# Regras do projeto", agents.read_text(encoding="utf-8"))
             self.assertIn("ai-specialist-pack:start", agents.read_text(encoding="utf-8"))
-            self.assertEqual(len(list((repo / ".agents/skills").glob("*/SKILL.md"))), 50)
+            self.assertEqual(len(list((repo / ".agents/skills").glob("*/SKILL.md"))), 4)
+            self.assertTrue((repo / ".agents/references/modes/change-engineering.md").is_file())
             self.assertTrue((repo / ".ai-specialist-pack/config.example.json").is_file())
+            lock = json.loads((repo / ".ai-specialist-pack/pack.lock.json").read_text(encoding="utf-8"))
+            self.assertEqual(lock["profile"], "standard")
             self.assertEqual(self.run_installer("validate", repo).returncode, 0)
+
+    def test_full_profile_installs_all_public_skills(self):
+        with tempfile.TemporaryDirectory() as directory:
+            repo = Path(directory)
+            result = self.run_installer(repo, "--profile", "full")
+
+            self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+            self.assertEqual(len(list((repo / ".agents/skills").glob("*/SKILL.md"))), 6)
+
+    def test_update_can_shrink_profile(self):
+        with tempfile.TemporaryDirectory() as directory:
+            repo = Path(directory)
+            self.assertEqual(self.run_installer(repo, "--profile", "full").returncode, 0)
+
+            result = self.run_installer("update", repo, "--profile", "standard")
+
+            self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+            self.assertFalse((repo / ".agents/skills/ai-systems/SKILL.md").exists())
+            self.assertEqual(len(list((repo / ".agents/skills").glob("*/SKILL.md"))), 4)
 
     def test_conflict_requires_force(self):
         with tempfile.TemporaryDirectory() as directory:
             repo = Path(directory)
-            target = repo / ".agents/skills/01-codebase-inventory/SKILL.md"
+            target = repo / ".agents/skills/repository-discovery/SKILL.md"
             target.parent.mkdir(parents=True)
             target.write_text("local edit\n", encoding="utf-8")
 
@@ -60,14 +84,14 @@ class InstallerTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             repo = Path(directory)
             self.assertEqual(self.run_installer(repo).returncode, 0)
-            skill = repo / ".agents/skills/01-codebase-inventory/SKILL.md"
+            skill = repo / ".agents/skills/repository-discovery/SKILL.md"
             skill.write_text("local edit\n", encoding="utf-8")
 
             result = self.run_installer("uninstall", repo, "--yes")
 
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertTrue(skill.exists())
-            self.assertFalse((repo / ".agents/skills/02-architecture-mapper/SKILL.md").exists())
+            self.assertFalse((repo / ".agents/skills/ai-systems/SKILL.md").exists())
 
     def test_uninstall_keeps_optional_config(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -78,6 +102,33 @@ class InstallerTests(unittest.TestCase):
 
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertTrue((repo / ".ai-specialist-pack/config.example.json").exists())
+
+    def test_migrate_removes_unchanged_v4_files(self):
+        with tempfile.TemporaryDirectory() as directory:
+            repo = Path(directory)
+            legacy_relative = ".agents/skills/codebase-inventory/SKILL.md"
+            legacy = repo / legacy_relative
+            legacy.parent.mkdir(parents=True)
+            legacy.write_text("legacy skill\n", encoding="utf-8")
+            digest = hashlib.sha256(legacy.read_bytes()).hexdigest()
+            lock_dir = repo / ".ai-specialist-pack"
+            lock_dir.mkdir()
+            (lock_dir / "pack.lock.json").write_text(
+                json.dumps({
+                    "pack": "ai-specialist-skill-pack",
+                    "version": "4.0.0",
+                    "managed_files": {legacy_relative: digest}
+                }),
+                encoding="utf-8",
+            )
+
+            result = self.run_installer("migrate", repo)
+
+            self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+            self.assertFalse(legacy.exists())
+            self.assertTrue((repo / ".agents/skills/ai-specialist/SKILL.md").exists())
+            migrated_lock = json.loads((repo / ".ai-specialist-pack/pack.lock.json").read_text(encoding="utf-8"))
+            self.assertEqual(migrated_lock["version"], "5.0.0")
 
 
 if __name__ == "__main__":
