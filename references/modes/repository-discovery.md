@@ -42,4 +42,8 @@ Turn validated findings into concise documentation with sources, confidence, ris
 
 Create a progressive repository-learning path for 1, 3, 5 and 10 days, ordered by value and risk reduction.
 
-For `inventory`, `architecture`, `domain`, `flow`, `contracts`, `data` and `infrastructure`, output an application map. For all modes, follow `references/operating-contract.md`.
+## onboarding
+
+Produce a structured onboarding map covering application boundaries, entrypoints, key flows, external dependencies, persistence, events, authentication and authorization, observability, deployment, ownership, known risks, domain glossary, open questions and a prioritized study plan. Cite evidence and mark unavailable items as unknowns.
+
+For `inventory`, `architecture`, `domain`, `flow`, `contracts`, `data`, `infrastructure` and `onboarding`, output an application map. For all modes, follow `references/operating-contract.md`.

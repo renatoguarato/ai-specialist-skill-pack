@@ -8,7 +8,8 @@ Transfira: pergunta original, escopo, evidências já coletadas, conclusões, de
 
 ## Ordem padrão
 
-- Descoberta: inventário → arquitetura/domínio → fluxo/API/dados/infraestrutura → conhecimento capturado.
+- Descoberta: inventário → arquitetura/domínio → fluxo/API/dados/infraestrutura → onboarding/conhecimento capturado.
 - Mudança: impacto → estratégia de testes → plano de implementação → execução protegida → revisão.
+- Design: requisitos → system-design → ADR → implementação protegida.
 - IA: descoberta → análise especializada → avaliação → segurança/observabilidade → prontidão.
-- Operação: diagnóstico → mitigação segura → causa provável → correção permanente → postmortem.
+- Operação: diagnóstico/capacity → mitigação segura → causa provável → correção permanente → postmortem.

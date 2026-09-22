@@ -14,19 +14,19 @@ Review clarity, hierarchy, conflicts, injection resistance, output constraints, 
 
 ## rag
 
-Trace ingestion, chunking, embeddings, indexing, retrieval, ranking, context assembly, generation, citations and failure modes.
+Trace ingestion, chunking, embeddings, indexing, retrieval, ranking, context assembly, generation, citations and failure modes. Verify tenant and ACL filtering before context assembly, source and version tracking, and explicit abstention behavior.
 
 ## retrieval
 
-Design or evaluate retrieval datasets and metrics such as recall, precision, ranking quality, groundedness and error categories.
+Design or evaluate retrieval datasets and metrics such as Recall@K, Precision@K, Hit@K, MRR, NDCG@K and retrieval error categories. Keep retrieval relevance separate from generation quality such as faithfulness, groundedness, answer relevance, correctness and citation quality.
 
 ## agents
 
-Map planner, state, memory, loops, handoffs, termination and failure recovery.
+Map planner, state, memory, loops, handoffs, termination and failure recovery. Review delegation policy, max depth, max steps, max fan-out, execution budgets, required or optional agents, human-in-the-loop and checkpoint semantics.
 
 ## tools
 
-Review tool schemas, authorization, validation, side effects, idempotency, least privilege and auditability.
+Review tool schemas, authorization, validation, side effects, idempotency, least privilege, auditability and confirmation for high-impact operations. The model may request an action; the application must authenticate, authorize, validate and execute it.
 
 ## evals
 

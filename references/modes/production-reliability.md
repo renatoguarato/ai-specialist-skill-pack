@@ -16,6 +16,10 @@ Map trust boundaries, protected assets, authentication, authorization, secrets, 
 
 Assess production dependency failure modes, timeouts, retries, circuit breakers, version exposure, ownership and fallback behavior.
 
+## capacity
+
+Assess demand, throughput, latency percentiles, saturation, connection pools, downstream limits, queue depth, autoscaling, backpressure, rate limiting, load shedding and bulkheads. Identify capacity assumptions, bottlenecks, headroom and safe validation or rollback thresholds.
+
 ## postmortem
 
 Produce a blameless timeline, impact, detection, confirmed cause, contributing factors, uncertainty, corrective actions, owners, validation and prevention.

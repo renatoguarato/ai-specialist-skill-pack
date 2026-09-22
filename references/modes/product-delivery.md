@@ -12,6 +12,10 @@ Create high-value technical discovery questions and identify what can already be
 
 Write an ADR with context, options, decision, trade-offs, consequences and unresolved assumptions.
 
+## system-design
+
+Turn a requirement into a system design covering functional requirements, NFRs, workload and SLO assumptions, boundaries, flows, data, integrations, resilience, security, observability, deployment, trade-offs and an ADR handoff. Keep assumptions explicit and validate unknowns before committing to the design.
+
 ## poc
 
 Define hypothesis, scope, dataset, baseline, metrics, risks, timebox and decision rule for a proof of concept.

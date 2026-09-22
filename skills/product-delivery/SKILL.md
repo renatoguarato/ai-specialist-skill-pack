@@ -5,7 +5,7 @@ description: Converte requisitos e necessidades de negócio em decisões, POCs, 
 
 # Product Delivery
 
-Escolha um modo: `requirements`, `interview`, `adr`, `poc`, `experiment`, `translation`, `business-value`, `documentation`, `meeting` ou `ticket`.
+Escolha um modo: `requirements`, `interview`, `adr`, `system-design`, `poc`, `experiment`, `translation`, `business-value`, `documentation`, `meeting` ou `ticket`.
 
 Defina resultado observável, critérios de sucesso, restrições, não-objetivos, opções e custo de atraso. Compare alternativas determinísticas antes de recomendar IA.
 

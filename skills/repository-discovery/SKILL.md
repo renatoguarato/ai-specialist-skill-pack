@@ -5,7 +5,7 @@ description: Descobre estrutura, arquitetura, domínio, fluxos, contratos, dados
 
 # Repository Discovery
 
-Escolha um modo: `inventory`, `architecture`, `domain`, `flow`, `contracts`, `data`, `infrastructure`, `dependencies`, `knowledge` ou `learning`.
+Escolha um modo: `inventory`, `architecture`, `domain`, `flow`, `contracts`, `data`, `infrastructure`, `dependencies`, `knowledge`, `learning` ou `onboarding`.
 
 Colete primeiro os artefatos mais próximos da pergunta. Não trate nomes de pastas ou convenções de framework como prova de comportamento. Mapeie símbolos, chamadas, transformações, persistência, eventos e dependências.
 

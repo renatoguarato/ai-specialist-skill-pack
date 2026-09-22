@@ -8,6 +8,13 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 SKILLS = ROOT / "skills"
 V4_REQUIRED = ("## Contrato operacional v4", "## Saída v4")
+MODE_FILES = {
+    "repository-discovery": ROOT / "references/modes/repository-discovery.md",
+    "change-engineering": ROOT / "references/modes/change-engineering.md",
+    "production-reliability": ROOT / "references/modes/production-reliability.md",
+    "ai-systems": ROOT / "references/modes/ai-systems.md",
+    "product-delivery": ROOT / "references/modes/product-delivery.md",
+}
 
 def frontmatter(path):
     text = path.read_text(encoding="utf-8")
@@ -22,6 +29,25 @@ def frontmatter(path):
             key, value = line.split(":", 1)
             fields[key.strip()] = value.strip()
     return fields, text
+
+def mode_names(path):
+    text = path.read_text(encoding="utf-8")
+    return set(re.findall(r"^## ([a-z0-9-]+)$", text, re.MULTILINE))
+
+def validate_evals(errors):
+    path = ROOT / "evals/representative-scenarios.md"
+    text = path.read_text(encoding="utf-8")
+    legacy_names = set(re.findall(r"^\| `([^`]+)` \|", (ROOT / "MIGRATION.md").read_text(encoding="utf-8"), re.MULTILINE))
+    for name in sorted(legacy_names & set(re.findall(r"`([a-z0-9-]+)`", text))):
+        errors.append(f"{path}: referência legada da v4: {name}")
+
+    routes = re.findall(r"`([a-z0-9-]+)`\s*/\s*`([a-z0-9-]+)`", text)
+    for skill, mode in routes:
+        mode_file = MODE_FILES.get(skill)
+        if mode_file is None:
+            errors.append(f"{path}: skill de eval desconhecida: {skill}")
+        elif mode not in mode_names(mode_file):
+            errors.append(f"{path}: modo inexistente: {skill} / {mode}")
 
 def main():
     errors = []
@@ -40,6 +66,7 @@ def main():
             errors.append(f"perfil {profile} referencia skills inexistentes: {sorted(unknown)}")
     if not profiles:
         errors.append("manifest.json não possui profiles")
+    validate_evals(errors)
     names = set()
     for folder in dirs:
         path = folder / "SKILL.md"

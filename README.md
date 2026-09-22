@@ -76,9 +76,13 @@ Não edite código até o plano estar completo.
 
 ### Incidentes e IA
 
-Use `production-reliability` para `debug`, `observability`, `security`, `dependencies` ou `postmortem`.
+Use `production-reliability` para `debug`, `observability`, `security`, `dependencies`, `capacity` ou `postmortem`.
 
 Use `ai-systems` para `discovery`, `llm`, `prompt`, `rag`, `retrieval`, `agents`, `tools`, `evals`, `hallucination`, `cost`, `context`, `model`, `guardrails`, `bedrock` ou `readiness`.
+
+Use `product-delivery` para `requirements`, `interview`, `adr`, `system-design`, `poc`, `experiment`, `translation`, `business-value`, `documentation`, `meeting` ou `ticket`.
+
+Use `repository-discovery / onboarding` para construir um mapa de entrada de um sistema desconhecido e `product-delivery / system-design` para transformar requisitos em uma arquitetura avaliável.
 
 ## Atualização e migração
 

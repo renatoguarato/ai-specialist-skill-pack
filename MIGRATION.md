@@ -4,7 +4,7 @@ A v5 reduz as 50 skills da v4 para seis skills públicas. Os nomes antigos conti
 
 | Skill v4 | Skill v5 | Modo |
 |---|---|---|
-| `application-onboarding-orchestrator` | `ai-specialist` | roteamento |
+| `application-onboarding-orchestrator` | `repository-discovery` | `onboarding` |
 | `ai-specialist-daily-orchestrator` | `ai-specialist` | roteamento |
 | `codebase-inventory` | `repository-discovery` | `inventory` |
 | `architecture-mapper` | `repository-discovery` | `architecture` |
