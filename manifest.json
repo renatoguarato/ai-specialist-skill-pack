@@ -1,6 +1,6 @@
 {
   "name": "ai-specialist-skill-pack",
-  "version": "5.0.0",
+  "version": "6.0.0",
   "description": "Skills compactas para discovery, mudanças, confiabilidade, IA e delivery.",
   "skills": [
     "ai-specialist",
@@ -8,28 +8,37 @@
     "change-engineering",
     "production-reliability",
     "ai-systems",
-    "product-delivery"
+    "product-delivery",
+    "cross-repo-tracing",
+    "autonomous-implementation",
+    "ai-evaluation",
+    "engineering-handoff"
   ],
   "profiles": {
     "standard": [
       "ai-specialist",
       "repository-discovery",
       "change-engineering",
-      "production-reliability"
+      "production-reliability",
+      "engineering-handoff"
     ],
     "ai": [
       "ai-specialist",
       "repository-discovery",
       "change-engineering",
       "production-reliability",
-      "ai-systems"
+      "ai-systems",
+      "cross-repo-tracing",
+      "ai-evaluation"
     ],
     "delivery": [
       "ai-specialist",
       "repository-discovery",
       "change-engineering",
       "production-reliability",
-      "product-delivery"
+      "product-delivery",
+      "autonomous-implementation",
+      "engineering-handoff"
     ],
     "full": [
       "ai-specialist",
@@ -37,8 +46,12 @@
       "change-engineering",
       "production-reliability",
       "ai-systems",
-      "product-delivery"
+      "product-delivery",
+      "cross-repo-tracing",
+      "autonomous-implementation",
+      "ai-evaluation",
+      "engineering-handoff"
     ]
   },
-  "skill_count": 6
+  "skill_count": 10
 }
