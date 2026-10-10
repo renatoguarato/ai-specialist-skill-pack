@@ -1,0 +1,9 @@
+{
+  "name": "ai-specialist-skill-pack",
+  "version": "6.0.0",
+  "description": "Reusable AI engineering skills for Devin CLI",
+  "author": {
+    "name": "Henrique Guarato"
+  },
+  "repository": "https://github.com/renatoguarato/ai-specialist-skill-pack"
+}
