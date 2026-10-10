@@ -86,7 +86,7 @@ def main():
         names.add(name)
         if not fields.get("description"):
             errors.append(f"{path}: description ausente")
-        if manifest.get("version", "").startswith("5."):
+        if manifest.get("version", "").startswith(("5.", "6.")):
             if "references/operating-contract.md" not in text:
                 errors.append(f"{path}: referência ao operating contract ausente")
             for reference in re.findall(r"`(references/[^`]+)`", text):

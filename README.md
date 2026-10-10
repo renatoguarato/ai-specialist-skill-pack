@@ -1,12 +1,25 @@
 # AI Specialist Skill Pack
 
-Versão atual: **5.0.0**
+Versão atual: **6.0.0**
 
-Pack compacto de skills para entender repositórios, encontrar e implementar melhorias, operar sistemas, analisar IA e tomar decisões técnicas.
+Pack de skills para entender repositórios, encontrar e implementar melhorias, operar sistemas, analisar IA e tomar decisões técnicas.
 
-## Instalação rápida
+## Devin CLI (instalação recomendada)
 
-O instalador usa apenas Python 3 e instala o perfil `standard` com quatro skills:
+Este repositório inclui o plugin `.devin-plugin/plugin.json`, instruções em `AGENTS.md`, skills especializadas e papéis de subagentes em `agents/`.
+
+```bash
+python3 scripts/validate_skill_pack.py
+python3 -m unittest discover -s tests -v
+devin plugins install .
+devin plugins list
+```
+
+Leia [DEVIN_CLI.md](DEVIN_CLI.md) para fluxos de onboarding, tracing entre repositórios, implementação aprovada, avaliação de IA e handoff. A pasta `agents/` contém instruções de papéis, não subagentes automaticamente registrados. O plugin deve ser validado em uma instalação real do Devin CLI.
+
+## Instalação rápida (legado / outros agentes)
+
+O instalador usa apenas Python 3 e instala o perfil `standard` com cinco skills:
 
 ```bash
 python3 /caminho/ai-specialist-skill-pack/install.py /caminho/do/projeto
@@ -23,9 +36,9 @@ python3 /caminho/ai-specialist-skill-pack/install.py /caminho/do/projeto --profi
 | Perfil | Skills adicionadas |
 |---|---|
 | `standard` | entrada, discovery, mudanças e confiabilidade |
-| `ai` | standard + análise de sistemas de IA |
-| `delivery` | standard + requisitos e delivery |
-| `full` | todas as seis skills públicas |
+| `ai` | standard + análise de sistemas de IA, tracing multi-repo e avaliações |
+| `delivery` | standard + requisitos, delivery e implementação |
+| `full` | todas as dez skills públicas |
 
 O instalador cria `.agents/skills`, adiciona um bloco controlado ao `AGENTS.md` e registra a instalação em `.ai-specialist-pack/pack.lock.json`.
 
@@ -115,7 +128,7 @@ Consulte [`MIGRATION.md`](MIGRATION.md) para a conversão dos nomes da v4 para m
 
 ## Estrutura
 
-As seis skills públicas são pequenas portas de entrada. Checklists detalhados vivem em `references/modes/` e são lidos somente quando o modo correspondente é necessário. O contrato compartilhado está em `references/operating-contract.md`.
+As dez skills públicas são pequenas portas de entrada. Checklists detalhados vivem em `references/modes/` e são lidos somente quando o modo correspondente é necessário. O contrato compartilhado está em `references/operating-contract.md`.
 
 Validação do pack:
 
